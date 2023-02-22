@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class StartupTests {
     
-    private final Javalin app = StardateWeb.create(new ArrayList<>()).getApp();
+    private final Javalin app = StardateWeb.create(new ArrayList<>());
     
     @Test
     public void appStarts() {

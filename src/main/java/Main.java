@@ -34,6 +34,6 @@ public class Main {
                         .add(galaxyMaps)
                         .build();
 
-        StardateWeb.create(components).getApp().start(port);
+        StardateWeb.create(components).start(port);
     }
 }
