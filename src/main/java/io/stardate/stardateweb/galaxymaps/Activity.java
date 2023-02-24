@@ -1,4 +1,4 @@
-package io.stardate.stardateweb.galaxymaps.models;
+package io.stardate.stardateweb.galaxymaps;
 
 public enum Activity {
     Mine,

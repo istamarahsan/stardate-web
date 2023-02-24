@@ -1,26 +1,26 @@
 package io.stardate.stardateweb.galaxymaps;
 
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import io.stardate.stardateweb.WebComponent;
-import io.stardate.stardateweb.galaxymaps.models.GalaxyMap;
-import io.stardate.stardateweb.galaxymaps.models.GalaxyMapPreview;
-
-import java.util.function.Consumer;
+import org.jooq.Configuration;
+import org.jooq.impl.DSL;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.path;
 
 public class GalaxyMaps implements WebComponent {
 
-    private final GalaxyMapsData data;
-
-    private GalaxyMaps(GalaxyMapsData data) {
-        this.data = data;
+    private final ListAllMapsHandler listAllMapsHandler;
+    private final GetGalaxyMapHandler getGalaxyMapHandler;
+    
+    private GalaxyMaps(ListAllMapsHandler listAllMapsHandler, GetGalaxyMapHandler getGalaxyMapHandler) {
+        this.listAllMapsHandler = listAllMapsHandler;
+        this.getGalaxyMapHandler = getGalaxyMapHandler;
     }
 
-    public static GalaxyMaps create(GalaxyMapsData data) {
-        return new GalaxyMaps(data);
+    public static GalaxyMaps create(Configuration dbConfig) {
+        var db = DSL.using(dbConfig);
+        return new GalaxyMaps(new ListAllMapsHandler(db), new GetGalaxyMapHandler(db));
     }
 
     @Override
@@ -29,42 +29,18 @@ public class GalaxyMaps implements WebComponent {
             path("galaxyMaps", () -> {
                 path("maps", () -> {
                     path("{galaxyMapId}", () -> {
-                        get(this::getGalaxyMap);
+                        get(getGalaxyMapHandler);
                     });
                 });
                 path("all", () -> {
-                    get(this::all);
+                    get(listAllMapsHandler);
                 });
                 path("preview", () -> {
                     path("{galaxyMapId}", () -> {
-                        get(this::preview);
+//                        get(this::preview);
                     });
                 });
             });
         });
-    }
-
-    public void getGalaxyMap(Context context) {
-        var id = context.pathParam("galaxyMapId");
-        var result = data.get(id);
-        result.map(this::respondMap).orElse(ctx -> ctx.status(404)).accept(context);
-    }
-
-    public void preview(Context context) {
-        var id = context.pathParam("galaxyMapId");
-        var result = data.getPreview(id);
-        result.map(this::respondPreview).orElse(ctx -> ctx.status(404)).accept(context);
-    }
-
-    public void all(Context context) {
-        context.json(data.allAsPreview());
-    }
-
-    private Consumer<Context> respondMap(GalaxyMap map) {
-        return (ctx -> ctx.json(map));
-    }
-
-    private Consumer<Context> respondPreview(GalaxyMapPreview preview) {
-        return (ctx -> ctx.json(preview));
     }
 }

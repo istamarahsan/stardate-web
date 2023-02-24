@@ -1,10 +1,10 @@
 import com.google.common.collect.ImmutableList;
 import io.stardate.extensions.Parse;
-import io.stardate.stardateweb.galaxymaps.GalaxyMaps;
 import io.stardate.stardateweb.StardateWeb;
 import io.stardate.stardateweb.WebComponent;
-import io.stardate.stardateweb.galaxymaps.JooqSql;
+import io.stardate.stardateweb.galaxymaps.GalaxyMaps;
 import org.jooq.SQLDialect;
+import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultConnectionProvider;
 
 import java.sql.DriverManager;
@@ -24,10 +24,11 @@ public class Main {
         var mySqlPassword = Optional.ofNullable(System.getenv("MYSQLPASSWORD")).get();
         
         var connectionString = "jdbc:mysql://" + mySqlHost + ":" + mySqlPort + "/";
-        var conn = DriverManager.getConnection(connectionString, mySqlUser, mySqlPassword);
-        
-        var data = new JooqSql(new DefaultConnectionProvider(conn), SQLDialect.MYSQL);
-        var galaxyMaps = GalaxyMaps.create(data);
+        var galaxyMapDBConn = DriverManager.getConnection(connectionString + "GalaxyMaps", mySqlUser, mySqlPassword);
+        var config = new DefaultConfiguration();
+        config.set(new DefaultConnectionProvider(galaxyMapDBConn));
+        config.set(SQLDialect.MYSQL);
+        var galaxyMaps = GalaxyMaps.create(config);
         
         var components = 
                 new ImmutableList.Builder<WebComponent>()
