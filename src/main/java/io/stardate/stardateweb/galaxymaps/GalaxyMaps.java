@@ -12,15 +12,17 @@ public class GalaxyMaps implements WebComponent {
 
     private final ListAllMapsHandler listAllMapsHandler;
     private final GetGalaxyMapHandler getGalaxyMapHandler;
+    private final GetPlanetarySystemHandler getPlanetarySystemHandler;
     
-    private GalaxyMaps(ListAllMapsHandler listAllMapsHandler, GetGalaxyMapHandler getGalaxyMapHandler) {
+    private GalaxyMaps(ListAllMapsHandler listAllMapsHandler, GetGalaxyMapHandler getGalaxyMapHandler, GetPlanetarySystemHandler getPlanetarySystemHandler) {
         this.listAllMapsHandler = listAllMapsHandler;
         this.getGalaxyMapHandler = getGalaxyMapHandler;
+        this.getPlanetarySystemHandler = getPlanetarySystemHandler;
     }
 
     public static GalaxyMaps create(Configuration dbConfig) {
         var db = DSL.using(dbConfig);
-        return new GalaxyMaps(new ListAllMapsHandler(db), new GetGalaxyMapHandler(db));
+        return new GalaxyMaps(new ListAllMapsHandler(db), new GetGalaxyMapHandler(db), new GetPlanetarySystemHandler(db));
     }
 
     @Override
@@ -38,6 +40,11 @@ public class GalaxyMaps implements WebComponent {
                 path("preview", () -> {
                     path("{galaxyMapId}", () -> {
 //                        get(this::preview);
+                    });
+                });
+                path("systems", () -> {
+                    path("{planetarySystemId}", () -> {
+                        get(getPlanetarySystemHandler);
                     });
                 });
             });
