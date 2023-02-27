@@ -53,7 +53,7 @@ public class GetPlanetarySystemHandler implements Handler {
                                                 (String) record.value3(),
                                                 Optional.ofNullable(record.value4())
                                                         .map(v -> (String) v)
-                                                        .flatMap(this::parseActivity)
+                                                        .orElse("none")
                                         )
                                 )
                         )
@@ -62,15 +62,5 @@ public class GetPlanetarySystemHandler implements Handler {
                         context::json,
                         () -> context.status(404)
                 );
-    }
-
-    private Optional<Activity> parseActivity(String str) {
-        return switch (str.toLowerCase()) {
-            case "mine" -> Optional.of(Activity.Mine);
-            case "trade" -> Optional.of(Activity.Trade);
-            case "repair" -> Optional.of(Activity.Repair);
-            case "story" -> Optional.of(Activity.Story);
-            default -> Optional.empty();
-        };
     }
 }
